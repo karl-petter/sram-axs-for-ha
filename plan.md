@@ -88,11 +88,11 @@ HA UI + automations (low battery alerts)
 
 - [x] Add `Last Read` as a proper timestamp sensor entity per device (device_class=timestamp — shows in device page, activity log, and history as "X minutes ago"; replaces earlier hidden attribute approach)
 
-### Phase 2 — Explore proprietary services
+### Phase 2 — Explore proprietary services ✅
 
-- [ ] Enumerate characteristics inside `d905xxxx` services
-- [ ] Identify any readable values (gear position, shift count, post position)
-- [ ] Add additional sensor entities if useful data found
+- [x] Enumerate characteristics inside `d905xxxx` services — **done via nRF Connect**
+- [x] Identify any readable values — **result: all characteristics return raw hex bytes with no self-evident meaning. Values are present but opaque without knowing the protocol.**
+- [ ] Add additional sensor entities if useful data found — blocked until protocol is understood (see Phase 3)
 
 ### Phase 3 — Reverse engineer proprietary SRAM services
 
@@ -102,9 +102,9 @@ Goal: understand what the `d905xxxx` services contain beyond battery level (gear
 
 Steps in recommended order:
 
-- [ ] **nRF Connect characteristic scan** — connect to each component, expand every `d905xxxx` service, tap Read on each characteristic. Note UUID + raw value for any that respond. Zero risk, no app involved.
-- [ ] **Android HCI snoop log** — enable Bluetooth HCI snoop in Android developer options, open the SRAM AXS app and interact with both components (shift, raise/lower post), then pull the `btsnoop_hci.log` and analyse in Wireshark. Shows exactly what the app reads/writes without decompiling anything.
-- [ ] **APK decompilation with jadx** — only needed if the HCI log contains payloads that are opaque without knowing the parsing logic. Download APK, run `jadx -d out/ armyknife.apk`, search for characteristic UUIDs.
+- [x] **nRF Connect characteristic scan** — characteristics are readable and return data, but all values are raw hex with no obvious structure. Cannot interpret without protocol knowledge.
+- [ ] **Android HCI snoop log** — enable Bluetooth HCI snoop in Android developer options, open the SRAM AXS app and interact with both components (shift, raise/lower post), then pull the `btsnoop_hci.log` and analyse in Wireshark. This will show which characteristics the app reads/writes and in what sequence — the key next step.
+- [ ] **APK decompilation with jadx** — only needed if the HCI log contains payloads that are still opaque without knowing the parsing logic. Download APK, run `jadx -d out/ armyknife.apk`, search for characteristic UUIDs.
 - [ ] Map discovered data to new sensor entities (gear position, shift count, post position %)
 
 App on Google Play: `com.sram.armyknife`
