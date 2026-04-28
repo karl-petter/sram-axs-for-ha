@@ -1,0 +1,16 @@
+{
+  "domain": "sram_axs",
+  "name": "SRAM AXS",
+  "version": "0.1.0",
+  "config_flow": true,
+  "bluetooth": [
+    {
+      "local_name": "SRAM *",
+      "connectable": true
+    }
+  ],
+  "dependencies": ["bluetooth"],
+  "codeowners": [],
+  "requirements": [],
+  "iot_class": "local_polling"
+}

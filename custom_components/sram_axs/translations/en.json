@@ -1,0 +1,24 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Select SRAM AXS Device",
+        "description": "Found nearby SRAM AXS components. Wake the component by pressing a button if it doesn't appear.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "select_type": {
+        "title": "Component Type",
+        "description": "What type of component is **{name}**?",
+        "data": {
+          "component_type": "Component Type"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "no_devices_found": "No SRAM AXS devices found nearby. Press a button on the component to wake it, then try again."
+    }
+  }
+}
