@@ -10,8 +10,8 @@ Expose battery status from SRAM AXS components as Home Assistant sensor entities
 
 | Component | BLE Address | Device Name | Battery |
 | --- | --- | --- | --- |
-| Command Post | `f2:ee:77:38:d1:41` | `SRAM 1042267555` | 55% |
-| Shifter | `ef:de:d6:27:23:5f` | `SRAM 1427171611` | 100% |
+| Command Post | `F2:EE:77:38:D1:41` | `SRAM 1042267555` | 100% |
+| Shifter | `EF:DE:D6:27:23:5F` | `SRAM 1427171611` | 100% |
 
 > Note: BLE addresses are random/private and may rotate. Device names (`SRAM <serial>`) are stable and should be used for identification.
 
@@ -72,15 +72,21 @@ HA UI + automations (low battery alerts)
 
 ## Implementation Phases
 
-### Phase 1 — MVP battery sensors
+### Phase 1 — MVP battery sensors ✅
 
-- [ ] Scaffold `custom_components/sram_axs/`
-- [ ] `manifest.json` with `bluetooth` dependency
-- [ ] Config flow: passive BLE scan → show discovered SRAM devices → user picks + labels each
-- [ ] `coordinator.py`: connect with bleak, read battery characteristic, disconnect
-- [ ] `sensor.py`: battery level entity per device
-- [ ] Handle unavailability (device out of range / bike away)
-- [ ] Device registry: manufacturer = SRAM, name = device name, serial = numeric part
+- [x] Scaffold `custom_components/sram_axs/`
+- [x] `manifest.json` with `bluetooth` dependency
+- [x] Config flow: passive BLE scan → show discovered SRAM devices → user picks + labels each
+- [x] `coordinator.py`: connect with bleak, read battery characteristic, disconnect
+- [x] `sensor.py`: battery level entity per device
+- [x] Handle unavailability (device out of range / bike away)
+- [x] Device registry: manufacturer = SRAM, name = device name, serial = numeric part
+- [x] Deploy to HA and confirm readings for both components
+- [x] Publish to GitHub
+
+### Phase 1.5 — Small improvements ✅
+
+- [x] Add `Last Read` as a proper timestamp sensor entity per device (device_class=timestamp — shows in device page, activity log, and history as "X minutes ago"; replaces earlier hidden attribute approach)
 
 ### Phase 2 — Explore proprietary services
 
