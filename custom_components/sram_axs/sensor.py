@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -22,7 +24,22 @@ async def async_setup_entry(
     async_add_entities: AddEntitiesCallback,
 ) -> None:
     coordinator: SramAxsCoordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_entities([SramAxsBatterySensor(coordinator, entry)])
+    async_add_entities([
+        SramAxsBatterySensor(coordinator, entry),
+        SramAxsLastReadSensor(coordinator, entry),
+    ])
+
+
+def _device_info(coordinator: SramAxsCoordinator, entry: ConfigEntry) -> DeviceInfo:
+    component_type = entry.data.get(CONF_COMPONENT_TYPE, "unknown")
+    component_label = COMPONENT_TYPES.get(component_type, "Unknown")
+    return DeviceInfo(
+        identifiers={(DOMAIN, coordinator.address)},
+        name=f"SRAM AXS {component_label}",
+        manufacturer="SRAM",
+        model=f"AXS {component_label}",
+        serial_number=entry.data[CONF_NAME].removeprefix("SRAM "),
+    )
 
 
 class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
@@ -32,22 +49,10 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
     _attr_has_entity_name = True
     _attr_name = "Battery"
 
-    def __init__(
-        self, coordinator: SramAxsCoordinator, entry: ConfigEntry
-    ) -> None:
+    def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
-        component_type = entry.data.get(CONF_COMPONENT_TYPE, "unknown")
-        component_label = COMPONENT_TYPES.get(component_type, "Unknown")
-        device_name = entry.data[CONF_NAME]
-
         self._attr_unique_id = f"{coordinator.address}_battery"
-        self._attr_device_info = DeviceInfo(
-            identifiers={(DOMAIN, coordinator.address)},
-            name=f"SRAM AXS {component_label}",
-            manufacturer="SRAM",
-            model=f"AXS {component_label}",
-            serial_number=device_name.removeprefix("SRAM "),
-        )
+        self._attr_device_info = _device_info(coordinator, entry)
 
     @property
     def native_value(self) -> int | None:
@@ -56,14 +61,26 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
         return self.coordinator.data.get("battery_level")
 
     @property
-    def extra_state_attributes(self) -> dict | None:
+    def available(self) -> bool:
+        return self.coordinator.data is not None
+
+
+class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
+    _attr_device_class = SensorDeviceClass.TIMESTAMP
+    _attr_has_entity_name = True
+    _attr_name = "Last Read"
+
+    def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator)
+        self._attr_unique_id = f"{coordinator.address}_last_read"
+        self._attr_device_info = _device_info(coordinator, entry)
+
+    @property
+    def native_value(self) -> datetime | None:
         if self.coordinator.data is None:
             return None
-        last_read = self.coordinator.data.get("last_read")
-        return {"last_read": last_read.isoformat() if last_read else None}
+        return self.coordinator.data.get("last_read")
 
     @property
     def available(self) -> bool:
-        # Show last known value even when the bike is out of BLE range.
-        # Only unavailable before the first successful read.
         return self.coordinator.data is not None
