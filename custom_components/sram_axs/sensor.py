@@ -56,6 +56,13 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
         return self.coordinator.data.get("battery_level")
 
     @property
+    def extra_state_attributes(self) -> dict | None:
+        if self.coordinator.data is None:
+            return None
+        last_read = self.coordinator.data.get("last_read")
+        return {"last_read": last_read.isoformat() if last_read else None}
+
+    @property
     def available(self) -> bool:
         # Show last known value even when the bike is out of BLE range.
         # Only unavailable before the first successful read.

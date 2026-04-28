@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from bleak import BleakClient, BleakError
@@ -93,9 +93,9 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 raw = await client.read_gatt_char(BATTERY_LEVEL_CHAR_UUID)
 
             battery_level = raw[0]
-            self._last_read = datetime.utcnow()
+            self._last_read = datetime.now(UTC)
             _LOGGER.debug("%s battery: %d%%", self.device_name, battery_level)
-            return {"battery_level": battery_level}
+            return {"battery_level": battery_level, "last_read": self._last_read}
 
         except BleakError as err:
             _LOGGER.warning("BLE read failed for %s: %s", self.device_name, err)
