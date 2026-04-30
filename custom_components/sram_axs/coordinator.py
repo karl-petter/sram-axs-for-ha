@@ -84,7 +84,7 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 {"battery_level": battery_level, "last_read": self._last_read}
             )
 
-        except BleakError as err:
+        except Exception as err:  # noqa: BLE001
             _LOGGER.warning("BLE read failed for %s: %s", self.device_name, err)
         finally:
             self._reading = False
