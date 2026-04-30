@@ -3,6 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 
 from homeassistant.components.sensor import (
+    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
@@ -42,45 +43,59 @@ def _device_info(coordinator: SramAxsCoordinator, entry: ConfigEntry) -> DeviceI
     )
 
 
-class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
+class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor):
     _attr_device_class = SensorDeviceClass.BATTERY
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_has_entity_name = True
     _attr_name = "Battery"
+    _restored_value: int | None = None
 
     def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.address}_battery"
         self._attr_device_info = _device_info(coordinator, entry)
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if self.coordinator.data is None:
+            if (last := await self.async_get_last_sensor_data()) is not None:
+                self._restored_value = last.native_value
+
     @property
     def native_value(self) -> int | None:
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get("battery_level")
+        if self.coordinator.data is not None:
+            return self.coordinator.data.get("battery_level")
+        return self._restored_value
 
     @property
     def available(self) -> bool:
-        return self.coordinator.data is not None
+        return self.coordinator.data is not None or self._restored_value is not None
 
 
-class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], SensorEntity):
+class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_has_entity_name = True
     _attr_name = "Last Read"
+    _restored_value: datetime | None = None
 
     def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:
         super().__init__(coordinator)
         self._attr_unique_id = f"{coordinator.address}_last_read"
         self._attr_device_info = _device_info(coordinator, entry)
 
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        if self.coordinator.data is None:
+            if (last := await self.async_get_last_sensor_data()) is not None:
+                self._restored_value = last.native_value
+
     @property
     def native_value(self) -> datetime | None:
-        if self.coordinator.data is None:
-            return None
-        return self.coordinator.data.get("last_read")
+        if self.coordinator.data is not None:
+            return self.coordinator.data.get("last_read")
+        return self._restored_value
 
     @property
     def available(self) -> bool:
-        return self.coordinator.data is not None
+        return self.coordinator.data is not None or self._restored_value is not None
