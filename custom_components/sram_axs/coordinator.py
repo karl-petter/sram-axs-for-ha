@@ -5,11 +5,12 @@ from datetime import UTC, datetime
 from typing import Any
 
 from bleak import BleakClient, BleakError
+from bleak.backends.device import BLEDevice
 
 from homeassistant.components import bluetooth
 from homeassistant.components.bluetooth import BluetoothChange, BluetoothServiceInfoBleak
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import BATTERY_LEVEL_CHAR_UUID, CONNECT_TIMEOUT, DOMAIN, READ_DEBOUNCE_SECONDS
 
@@ -24,7 +25,7 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             hass,
             _LOGGER,
             name=f"SRAM AXS {name}",
-            update_interval=None,  # Push-driven: updates triggered by BLE advertisements
+            update_interval=None,
         )
         self.address = address
         self.device_name = name
@@ -33,7 +34,6 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._reading = False
 
     async def async_start(self) -> None:
-        """Register BLE advertisement callback so we know when the device wakes up."""
         self._cancel_callback = bluetooth.async_register_callback(
             self.hass,
             self._on_advertisement,
@@ -52,56 +52,33 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         service_info: BluetoothServiceInfoBleak,
         change: BluetoothChange,
     ) -> None:
-        """Fires when a BLE advertisement is received from the device.
-
-        Schedules a battery read, but debounced so we don't hammer the connection
-        every time the device sends an advertisement packet.
-        """
         if self._reading:
             return
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         if (
             self._last_read is not None
             and (now - self._last_read).total_seconds() < READ_DEBOUNCE_SECONDS
         ):
             return
-        self.hass.async_create_task(self.async_request_refresh())
+        # Pass the BLE device object directly — we have it right now while the
+        # device is awake. Re-looking it up later via async_ble_device_from_address
+        # races against the device going back to sleep.
+        self.hass.async_create_task(self._async_read(service_info.device))
 
-    async def _async_update_data(self) -> dict[str, Any]:
-        if self._reading:
-            # Another refresh is already running; return cached data rather than
-            # opening a second parallel connection.
-            if self.data is not None:
-                return self.data
-            raise UpdateFailed("Read already in progress and no cached data available")
-
+    async def _async_read(self, device: BLEDevice) -> None:
         self._reading = True
         try:
-            device = bluetooth.async_ble_device_from_address(
-                self.hass, self.address, connectable=True
-            )
-            if device is None:
-                # Device not currently visible in the BLE scanner. Return the
-                # last known value so sensors keep showing a useful reading.
-                if self.data is not None:
-                    return self.data
-                raise UpdateFailed(
-                    f"Device {self.address} not found — wake the component and try again"
-                )
-
             async with BleakClient(device, timeout=CONNECT_TIMEOUT) as client:
                 raw = await client.read_gatt_char(BATTERY_LEVEL_CHAR_UUID)
 
-            battery_level = raw[0]
             self._last_read = datetime.now(UTC)
+            battery_level = raw[0]
             _LOGGER.debug("%s battery: %d%%", self.device_name, battery_level)
-            return {"battery_level": battery_level, "last_read": self._last_read}
+            self.async_set_updated_data(
+                {"battery_level": battery_level, "last_read": self._last_read}
+            )
 
         except BleakError as err:
             _LOGGER.warning("BLE read failed for %s: %s", self.device_name, err)
-            # Keep showing last known value rather than making the sensor unavailable.
-            if self.data is not None:
-                return self.data
-            raise UpdateFailed(f"BLE connection failed: {err}") from err
         finally:
             self._reading = False
