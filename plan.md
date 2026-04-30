@@ -111,8 +111,24 @@ App on Google Play: `com.sram.armyknife`
 
 ### Phase 4 — Polish
 
-- [ ] HA repair issues for critically low battery
-- [ ] `strings.json` / translations
+- [ ] **HA repair issues for critically low battery**
+
+  HA Repair issues appear in **Settings → Repairs** (the wrench icon) without the user needing to set up any automation — the integration raises them proactively.
+
+  Implementation:
+  - In `coordinator.py`, after a successful battery read, check if `battery_level < BATTERY_LOW_THRESHOLD` (suggest 20%)
+  - If yes, call `ir.async_create_issue(...)` from `homeassistant.helpers.issue_registry`
+  - If the battery recovers above the threshold, call `ir.async_delete_issue(...)` to clear it
+  - Issue ID should be unique per device, e.g. `f"{DOMAIN}_low_battery_{self.address}"`
+  - Add the issue strings to `strings.json` under a `"issues"` key
+
+  Example issue text:
+  > **SRAM AXS Shifter battery is critically low (8%)**
+  > Charge your shifter before your next ride.
+
+  Reference: [HA issue registry docs](https://developers.home-assistant.io/docs/integration_issues)
+
+- [ ] `strings.json` / translations — add `"issues"` section with low battery title and description
 - [x] HACS-compatible `hacs.json` + README
 
 ---
