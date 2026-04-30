@@ -6,6 +6,7 @@ from typing import Any
 
 from bleak import BleakClient, BleakError
 from bleak.backends.device import BLEDevice
+from bleak_retry_connector import establish_connection
 
 from homeassistant.components import bluetooth
 from homeassistant.components.bluetooth import BluetoothChange, BluetoothServiceInfoBleak
@@ -68,8 +69,13 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def _async_read(self, device: BLEDevice) -> None:
         self._reading = True
         try:
-            async with BleakClient(device, timeout=CONNECT_TIMEOUT) as client:
+            client = await establish_connection(
+                BleakClient, device, self.device_name, max_attempts=3
+            )
+            try:
                 raw = await client.read_gatt_char(BATTERY_LEVEL_CHAR_UUID)
+            finally:
+                await client.disconnect()
 
             self._last_read = datetime.now(UTC)
             battery_level = raw[0]
