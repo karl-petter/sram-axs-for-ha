@@ -29,19 +29,20 @@ Any SRAM AXS component that exposes the standard BLE Battery Service should work
 
 ## Installation
 
-1. Copy the `custom_components/sram_axs/` folder into your HA `config/custom_components/` directory.
-2. Restart Home Assistant.
+### HACS (recommended)
 
-### Using the deploy script
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=karl-petter&repository=sram-axs-for-ha&category=integration)
 
-If you have SSH access to your HA host:
+Or add manually in HACS:
 
-```bash
-./deploy.sh <user> <host>
-# e.g. ./deploy.sh homeassistant homeassistant.local
-```
+1. Open HACS → **⋮ → Custom repositories**
+2. Add `https://github.com/karl-petter/sram-axs-for-ha` with category **Integration**
+3. Search for *SRAM AXS* and install
+4. Restart Home Assistant
 
-Then restart HA or reload the integration.
+### Manual
+
+Copy the `custom_components/sram_axs/` folder into your HA `config/custom_components/` directory and restart Home Assistant.
 
 ## Configuration
 
@@ -91,7 +92,6 @@ automation:
 ## Roadmap
 
 - [ ] Explore SRAM proprietary BLE services for additional data (gear position, shift count, post position) via HCI snoop log analysis
-- [ ] HACS support
 - [ ] HA repair issues for critically low battery
 
 ## Contributing
