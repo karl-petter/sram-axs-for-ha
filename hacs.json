@@ -1,0 +1,7 @@
+{
+  "name": "SRAM AXS",
+  "description": "Battery status for SRAM AXS components (shifter, command post) via Bluetooth LE",
+  "render_readme": true,
+  "homeassistant": "2023.6.0",
+  "iot_class": "local_polling"
+}

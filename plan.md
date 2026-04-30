@@ -113,7 +113,7 @@ App on Google Play: `com.sram.armyknife`
 
 - [ ] HA repair issues for critically low battery
 - [ ] `strings.json` / translations
-- [ ] HACS-compatible `hacs.json` + README
+- [x] HACS-compatible `hacs.json` + README
 
 ---
 
