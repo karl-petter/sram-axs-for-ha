@@ -30,5 +30,11 @@
         "name": "Last Read"
       }
     }
+  },
+  "issues": {
+    "low_battery": {
+      "title": "{name} battery is low",
+      "description": "The battery level is {battery}%. Charge the component before your next ride."
+    }
   }
 }

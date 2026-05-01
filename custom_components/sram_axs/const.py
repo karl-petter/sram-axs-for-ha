@@ -27,5 +27,8 @@ COMPONENT_TYPES: dict[str, str] = {
 # Seconds between BLE reads — battery changes slowly, no need to hammer the connection
 READ_DEBOUNCE_SECONDS = 300  # 5 minutes
 
+# Battery level below which a HA Repair issue is raised
+BATTERY_LOW_THRESHOLD = 20
+
 # BLE connection timeout
 CONNECT_TIMEOUT = 10.0

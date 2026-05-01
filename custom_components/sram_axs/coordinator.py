@@ -11,9 +11,10 @@ from bleak_retry_connector import establish_connection
 from homeassistant.components import bluetooth
 from homeassistant.components.bluetooth import BluetoothChange, BluetoothServiceInfoBleak
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
-from .const import BATTERY_LEVEL_CHAR_UUID, CONNECT_TIMEOUT, DOMAIN, READ_DEBOUNCE_SECONDS
+from .const import BATTERY_LEVEL_CHAR_UUID, BATTERY_LOW_THRESHOLD, CONNECT_TIMEOUT, DOMAIN, READ_DEBOUNCE_SECONDS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -83,6 +84,23 @@ class SramAxsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self.async_set_updated_data(
                 {"battery_level": battery_level, "last_read": self._last_read}
             )
+
+            issue_id = f"low_battery_{self.address.replace(':', '_').lower()}"
+            if battery_level < BATTERY_LOW_THRESHOLD:
+                ir.async_create_issue(
+                    self.hass,
+                    DOMAIN,
+                    issue_id,
+                    is_fixable=False,
+                    severity=ir.IssueSeverity.WARNING,
+                    translation_key="low_battery",
+                    translation_placeholders={
+                        "name": self.device_name,
+                        "battery": str(battery_level),
+                    },
+                )
+            else:
+                ir.async_delete_issue(self.hass, DOMAIN, issue_id)
 
         except Exception as err:  # noqa: BLE001
             _LOGGER.warning("BLE read failed for %s: %s", self.device_name, err)
