@@ -20,5 +20,15 @@
       "already_configured": "This device is already configured.",
       "no_devices_found": "No SRAM AXS devices found nearby. Press a button on the component to wake it, then try again."
     }
+  },
+  "entity": {
+    "sensor": {
+      "battery": {
+        "name": "Battery"
+      },
+      "last_read": {
+        "name": "Last Read"
+      }
+    }
   }
 }

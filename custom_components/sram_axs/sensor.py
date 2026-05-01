@@ -48,7 +48,7 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor)
     _attr_state_class = SensorStateClass.MEASUREMENT
     _attr_native_unit_of_measurement = PERCENTAGE
     _attr_has_entity_name = True
-    _attr_name = "Battery"
+    _attr_translation_key = "battery"
     _restored_value: int | None = None
 
     def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:
@@ -76,7 +76,7 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor)
 class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
     _attr_has_entity_name = True
-    _attr_name = "Last Read"
+    _attr_translation_key = "last_read"
     _restored_value: datetime | None = None
 
     def __init__(self, coordinator: SramAxsCoordinator, entry: ConfigEntry) -> None:

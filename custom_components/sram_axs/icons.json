@@ -1,0 +1,12 @@
+{
+  "entity": {
+    "sensor": {
+      "battery": {
+        "default": "mdi:battery"
+      },
+      "last_read": {
+        "default": "mdi:clock-outline"
+      }
+    }
+  }
+}
