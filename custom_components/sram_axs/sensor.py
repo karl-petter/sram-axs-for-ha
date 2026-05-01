@@ -69,10 +69,6 @@ class SramAxsBatterySensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor)
             return self.coordinator.data.get("battery_level")
         return self._restored_value
 
-    @property
-    def available(self) -> bool:
-        return self.coordinator.data is not None or self._restored_value is not None
-
 
 class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor):
     _attr_device_class = SensorDeviceClass.TIMESTAMP
@@ -96,7 +92,3 @@ class SramAxsLastReadSensor(CoordinatorEntity[SramAxsCoordinator], RestoreSensor
         if self.coordinator.data is not None:
             return self.coordinator.data.get("last_read")
         return self._restored_value
-
-    @property
-    def available(self) -> bool:
-        return self.coordinator.data is not None or self._restored_value is not None
