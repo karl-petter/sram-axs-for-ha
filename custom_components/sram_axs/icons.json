@@ -1,10 +1,10 @@
 {
   "entity": {
     "sensor": {
-      "battery": {
+      "axs_battery": {
         "default": "mdi:battery"
       },
-      "last_read": {
+      "axs_last_read": {
         "default": "mdi:clock-outline"
       }
     }

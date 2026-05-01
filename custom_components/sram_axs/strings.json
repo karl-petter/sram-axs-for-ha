@@ -23,10 +23,10 @@
   },
   "entity": {
     "sensor": {
-      "battery": {
+      "axs_battery": {
         "name": "Battery"
       },
-      "last_read": {
+      "axs_last_read": {
         "name": "Last Read"
       }
     }
