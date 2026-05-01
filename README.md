@@ -8,6 +8,7 @@ A custom Home Assistant integration that reads battery status from SRAM AXS comp
 
 - **Battery level** sensor (%) for each paired component
 - **Last Read** timestamp sensor showing when the value was last fetched from the device
+- **Low battery repair issue** — automatically raised in Settings → Repairs when battery drops below 20%, clears when it recovers. No automation needed.
 - Values persist across HA restarts — shows last known reading until the bike is in range again
 - Event-driven: reads trigger when the component wakes up (button press), not on a fixed timer
 - Auto-discovery: HA detects SRAM AXS devices automatically when they are in BLE range
@@ -93,7 +94,6 @@ mode: single
 ## Roadmap
 
 - [ ] Explore SRAM proprietary BLE services for additional data (gear position, shift count, post position) via HCI snoop log analysis
-- [ ] HA repair issues for critically low battery
 
 ## Contributing
 
