@@ -75,18 +75,19 @@ entities:
 ## Low battery automation example
 
 ```yaml
-automation:
-  - alias: "Warn when SRAM battery is low"
-    trigger:
-      - platform: numeric_state
-        entity_id:
-          - sensor.sram_axs_command_post_battery
-          - sensor.sram_axs_shifter_battery
-        below: 20
-    action:
-      - service: notify.mobile_app
-        data:
-          message: "{{ trigger.to_state.name }} is at {{ trigger.to_state.state }}%"
+alias: "Warn when SRAM battery is low"
+triggers:
+  - trigger: numeric_state
+    entity_id:
+      - sensor.sram_axs_command_post_battery
+      - sensor.sram_axs_shifter_battery
+    below: 20
+conditions: []
+actions:
+  - action: notify.mobile_app
+    data:
+      message: "{{ trigger.to_state.name }} is at {{ trigger.to_state.state }}%"
+mode: single
 ```
 
 ## Roadmap
