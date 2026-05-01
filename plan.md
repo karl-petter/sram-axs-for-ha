@@ -113,7 +113,7 @@ App on Google Play: `com.sram.armyknife`
 
 - [x] **HA repair issues for critically low battery** — raises a warning in Settings → Repairs when battery drops below 20%, clears automatically when it recovers. Implemented in `coordinator.py` via `homeassistant.helpers.issue_registry`.
 
-- [ ] `strings.json` / translations — add `"issues"` section with low battery title and description
+- [x] `strings.json` / translations — add `"issues"` section with low battery title and description
 - [x] HACS-compatible `hacs.json` + README
 
 ---
